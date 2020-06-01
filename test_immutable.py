@@ -179,7 +179,103 @@ class TestMutableList(unittest.TestCase):
     def test_associativity(self,a,b,c):
         self.assertEqual(traverse(mergeTrees(mergeTrees(construct_tree(a),construct_tree(b)),construct_tree(a))), traverse(mergeTrees(mergeTrees(construct_tree(a),construct_tree(b)),construct_tree(a))))
         
+    @given(st.lists(st.integers()))
+    def test_iter2(self,a):
+        i=0
+        for x in iter(construct_tree(a)):
+            self.assertEqual(x, a[i])
+            i=i+1
+            
+            
+    @given(st.lists(st.integers()))        
+    def test_reduce2(self,a):
+        def Sum(x,y):
+            return x+y
+
+        self.assertEqual(reduce(construct_tree(a), Sum),sum(a) )
         
+    @given(st.lists(st.integers())) 
+    def test_map2(self,a):
+        def increment(i):
+            return i+1
+
+        res=[x+1 for x in a]
+        self.assertEqual(traverse(map(construct_tree(a),increment)), traverse(construct_tree(res)))
+        
+    @given(st.lists(st.integers()),st.lists(st.integers())) 
+    def test_mergeTrees2(self,a,b):
+
+        c=[x+y for x,y in zip(a,b)]
+        la=len(a)
+        lb=len(b)
+        if la-lb>0:
+            c.extend(a[-(la-lb):])
+        elif la-lb<0:
+            c.extend(b[-(lb-la):])
+        self.assertEqual(traverse(mergeTrees(construct_tree(a),construct_tree(b))), traverse(construct_tree(c)))
+    
+    @given(st.lists(st.integers())) 
+    def test_mempty2(self,a):
+
+        self.assertEqual(getlength(mempty(construct_tree(a))), 0)
+        
+        
+    @given(st.lists(st.integers()),st.integers()) 
+    def test_tolist2(self,a,b):
+    #when a is a empty list,it can't be translated to a tree
+        if(len(a) == 0):
+            return
+        c=[x for x in a]
+        c.append(b)
+     
+        self.assertEqual(to_list(construct_tree(c)), to_list(add(construct_tree(a), b)))
+
+    @given(st.lists(st.integers()))
+    def test_getlength2(self,a):
+
+        la=len(a)
+        self.assertEqual(getlength(construct_tree(a)), la)
+    
+    @given(st.lists(st.integers()))
+    def test_find2(self,a):
+        if(len(a) == 0):
+            return    
+        def is_even(i):
+            if (i%2==0):
+                return True
+            return False
+        def is_odd(i):
+            if (i%2==1):
+                return True
+            return False
+#The position of the elements in the lists may be different, so the result need to be sorted      
+        res1=find_special(construct_tree(a),is_even)
+        res2=[x for x in a if (x%2==0)]
+        
+        res1.sort()
+        res2.sort()
+        self.assertEqual(res1, res2)
+        
+        
+    @given(st.lists(st.integers())) 
+    def test_filter2(self,a):
+        if(len(a) == 0):
+            return   
+        def is_even(i):
+            if (i%2==0):
+                return True
+            return False
+        def is_odd(i):
+            if (i%2==1):
+                return True
+            return False
+        
+        res1=traverse(filter_special(construct_tree(a),is_odd))
+        res2=[x for x in a if (x%2==0)]
+        
+        res1.sort()
+        res2.sort()
+        self.assertEqual(res1, res2)
 
 if __name__=='__main__':
     unittest.main()
