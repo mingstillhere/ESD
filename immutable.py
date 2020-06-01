@@ -101,7 +101,7 @@ def delete(root,item):
                     tmp_pre.left = tmp_next.right
                     tmp_next.left = del_node.left
                     tmp_next.right = del_node.right
-                if parent.left.item == item:
+                if parent.left and parent.left.item == item:
                     parent.left = tmp_next
                 else:
                     parent.right = tmp_next
@@ -110,16 +110,23 @@ def delete(root,item):
         else:
             if root.item==item:
                 if root.left is None and root.right is None:
+                    
+                    root.item = None
                     del root
                     return None
                 if root.left is None:
-                    del_node=root
-                    tmp_root=root.right
-                    return tmp_root
+                    root.item=root.right.item
+                    root.left=root.right.left
+                    root.right=root.right.right
+                    
+                    return root
                 if root.right is None:
-                    del_node=root
-                    tmp_root=root.left
-                    return tmp_root
+                    root.item=root.left.item
+                    root.right=root.left.right
+                    root.left=root.left.left
+                    
+                    
+                    return root
                 if root.right.left is None:
                     del_node=root.right
                     root.item=del_node.item
@@ -186,6 +193,8 @@ def filter_special(root,func):
     src=find_special(root,func)
     for i in src:
         delete(root,i)
+    if(root.item == None):
+        return None
     return root
 
 def map(root,func):
@@ -207,6 +216,8 @@ def map(root,func):
     return root
 
 def reduce(root,func):
+    if(root == None):
+        return 0
     src=traverse(root)
     length=len(src)-1
     res=src[0]
